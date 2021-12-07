@@ -1,0 +1,57 @@
+version: '3.4'
+services:
+
+#################Web Engine Block####################
+  nginx:
+    image: nginx
+    container_name: nginx
+    depends_on:
+      - mybb
+    networks:
+      - frontend
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx:/etc/nginx/conf.d:ro
+      - ./mybb:/var/www/html:ro
+################ Application & php Block ############
+
+  mybb:
+    image: aamir454/mybbpostgres:php7.1
+    container_name: forumappp
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - ./mybb:/var/www/html
+################# Database Engine Block #############
+
+  postgresql:
+    image: postgres:10.1-alpine
+    container_name: postgresql
+    environment:
+      POSTGRES_DB: forumappdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: Admin@1234
+    networks:
+      - backend
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+
+############## pgadmin ##############################
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
